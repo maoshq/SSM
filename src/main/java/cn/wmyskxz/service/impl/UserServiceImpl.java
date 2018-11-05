@@ -18,6 +18,8 @@ public class UserServiceImpl implements UserService {
     @Resource
     private UserDao userDao;
 
+
+
     @Override
     public User findUserById(int id) {
         return userDao.findUserById(id);
