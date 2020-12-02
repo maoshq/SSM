@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="layout-filling.svg" />
+    <None Remove="setting.svg" />
+    <None Remove="title.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FreeSpire.XLS" Version="10.10.0" />
+    <PackageReference Include="HandyControl" Version="3.0.0-rc.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14-beta2" />
+    <PackageReference Include="SharpVectors" Version="1.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="layout-filling.svg" />
+    <Resource Include="setting.svg" />
+    <Resource Include="title.png" />
+  </ItemGroup>
+
+</Project>
