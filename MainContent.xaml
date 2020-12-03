@@ -8,14 +8,40 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
 
-        <hc:SplitButton Margin="270,180,410,0" Style="{StaticResource  SplitButtonInfo}" Command="{Binding SelectCmd}" CommandParameter="Command0" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-            <hc:SplitButton.DropDownContent>
-                <StackPanel>
-                    <MenuItem  Command="{Binding SelectCmd}" CommandParameter="Command1"/>
-                    <MenuItem  Command="{Binding SelectCmd}" CommandParameter="Command2"/>
-                    <MenuItem Header="111" Command="{Binding SelectCmd}" CommandParameter="Command3"/>
-                </StackPanel>
-            </hc:SplitButton.DropDownContent>
-        </hc:SplitButton>
+        <ScrollViewer Margin="0,0,25,81"  >
+            <Grid Height="341">
+
+                <hc:Divider  Margin="30,315,30,10"/>
+                <hc:CheckComboBox x:Name="combox1" HorizontalAlignment="Left" Margin="150,100,0,0" Width="405" VerticalAlignment="Top"
+                 Style="{StaticResource CheckComboBoxPlus}" SelectionChanged="CheckComboBox_SelectionChanged"         
+                 ShowClearButton="True" 
+                          hc:TitleElement.Title="ReleaseVersion" hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="100" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" AllowDrop="True"  ShowSelectAllButton="True" Height="35" 
+
+                          />
+
+                <hc:CheckComboBox x:Name="combox2" HorizontalAlignment="Left" Height="38" Margin="150,177,0,0"  VerticalAlignment="Top" Width="405"
+                          Style="{StaticResource CheckComboBoxPlus}"
+                      hc:TitleElement.Title="OSVersion"  hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="100" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" AllowDrop="True" ShowSelectAllButton="True" 
+                    hc:ShowClearButton="True" MouseEnter="combox2_MouseEnter"
+                    />
+                <hc:CheckComboBox x:Name="combox3" HorizontalAlignment="Left" Height="35" Margin="150,250,0,0"  VerticalAlignment="Top" Width="405" Style="{StaticResource CheckComboBoxPlus}"
+            hc:TitleElement.Title="DriverVersion"  hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="100" ScrollViewer.CanContentScroll="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" AllowDrop="True"  ShowSelectAllButton="True"
+                    hc:ShowClearButton="True"  MouseEnter="combox3_MouseEnter"
+                    />
+                <hc:TextBox x:Name="TextBox1" HorizontalAlignment="Left" Height="35" Margin="150,25,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="405"
+            hc:TitleElement.Title="DriverName"  hc:TitleElement.TitlePlacement="Left" hc:TitleElement.TitleWidth="100" 
+                    hc:ShowClearButton="True" hc:InfoElement.Necessary="True" TextChanged="TextBox1_TextChanged"  
+                    />
+            </Grid>
+
+        </ScrollViewer>
+
+
+        <Button x:Name="Button1" Style="{StaticResource ButtonInfo}" Content="提交" Margin="615,374,0,0" hc:IconElement.Geometry="{StaticResource WindowRestoreGeometry}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="85" Click="Button_Click" FontSize="14" />
+        <hc:LoadingCircle x:Name="Loading1" HorizontalAlignment="Left" Height="30" Margin="705,374,0,0" VerticalAlignment="Top" Width="35"
+                    Visibility="Hidden"
+                          />
+        <CheckBox x:Name="check1" HorizontalAlignment="Left" Margin="523,380,0,0"    Content="生成图表" VerticalAlignment="Top" ClickMode="Release" IsChecked="True" />
+
     </Grid>
 </UserControl>

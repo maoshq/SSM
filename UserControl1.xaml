@@ -9,15 +9,19 @@
     <Grid>
         <TextBlock Margin="35,25,0,0" Style="{StaticResource TextBlockTitle}" Text="设置" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 
-        <TabControl Margin="125,38,0,0" Style="{StaticResource TabControlInLine}">
-            <TabItem Header="常规" Margin="0,0,69,0">
-                
-                
+        <TabControl Margin="125,38,0,0" Style="{StaticResource TabControlInLine}" SelectedIndex="0">
+            <TabItem Header="常规" Margin="0,0,440,0">
+                <Grid>
+                    <hc:TextBlock Style="{StaticResource TextBlockBaseStyle}" Text="模式 : " FontSize="14" HorizontalAlignment="Left" Margin="115,65,0,0" VerticalAlignment="Top"  />
+                    <ToggleButton x:Name="modelButton" Height="40" Width="40" Margin="185,54,450,287"  Style="{StaticResource ToggleButtonSwitch}"
+                                  IsChecked="True" 
+                                  />
+                    <ToggleButton x:Name="modelButton1" Height="40" Width="40" Margin="25,216,610,125"  Style="{StaticResource ToggleButtonSwitch}"
+                                  IsChecked="True"  Command=""
+                                  />
+                </Grid>
             </TabItem>
-            <TabItem Header="2" Margin="-1,0,68,0">
-            </TabItem>
-            <TabItem Header="3" IsSelected="True" Margin="-10,0,79,0">
-            </TabItem>
+
         </TabControl>
     </Grid>
 </UserControl>

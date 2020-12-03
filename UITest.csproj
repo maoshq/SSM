@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="layout-filling.svg" />
-    <None Remove="setting.svg" />
-    <None Remove="title.png" />
+    <None Remove="Resources\Icon\settings.png" />
+    <None Remove="Resources\Icon\title.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,13 +16,21 @@
     <PackageReference Include="HandyControl" Version="3.0.0-rc.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14-beta2" />
-    <PackageReference Include="SharpVectors" Version="1.7.1" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.2.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="layout-filling.svg" />
-    <Resource Include="setting.svg" />
-    <Resource Include="title.png" />
+    <Reference Include="Microsoft.Office.Interop.Excel">
+      <HintPath>..\..\..\..\..\Windows\assembly\GAC\Microsoft.Office.Interop.Excel\15.0.0.0__71e9bce111e9429c\Microsoft.Office.Interop.Excel.dll</HintPath>
+    </Reference>
+    <Reference Include="office">
+      <HintPath>..\..\..\..\..\Windows\assembly\GAC\Microsoft.Office.Interop.Excel\15.0.0.0__71e9bce111e9429c\OFFICE.DLL</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icon\settings.png" />
+    <Resource Include="Resources\Icon\title.png" />
   </ItemGroup>
 
 </Project>
