@@ -1,0 +1,214 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1/win-x64",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {},
+    ".NETCoreApp,Version=v3.1/win-x64": {
+      "UITest/1.0.0": {
+        "dependencies": {
+          "FreeSpire.XLS": "10.10.0",
+          "HandyControl": "3.0.0-rc.2",
+          "Newtonsoft.Json": "12.0.3",
+          "Newtonsoft.Json.Schema": "3.0.14-beta2",
+          "System.Linq.Dynamic.Core": "1.2.5",
+          "Microsoft.Office.Interop.Excel": "15.0.0.0",
+          "OFFICE": "15.0.0.0"
+        },
+        "runtime": {
+          "UITest.dll": {}
+        }
+      },
+      "FreeSpire.XLS/10.10.0": {
+        "dependencies": {
+          "System.Drawing.Common": "4.7.0",
+          "System.Text.Encoding.CodePages": "4.7.0"
+        },
+        "runtime": {
+          "lib/netcoreapp3.0/Spire.License.dll": {
+            "assemblyVersion": "1.3.8.320",
+            "fileVersion": "1.3.8.320"
+          },
+          "lib/netcoreapp3.0/Spire.Pdf.dll": {
+            "assemblyVersion": "6.10.0.0",
+            "fileVersion": "6.10.0.2330"
+          },
+          "lib/netcoreapp3.0/Spire.XLS.dll": {
+            "assemblyVersion": "10.10.1.0",
+            "fileVersion": "10.10.1.61330"
+          }
+        }
+      },
+      "HandyControl/3.0.0-rc.2": {
+        "runtime": {
+          "lib/netcoreapp3.1/HandyControl.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.0.0.0"
+          }
+        },
+        "resources": {
+          "lib/netcoreapp3.1/en/HandyControl.resources.dll": {
+            "locale": "en"
+          },
+          "lib/netcoreapp3.1/fa/HandyControl.resources.dll": {
+            "locale": "fa"
+          },
+          "lib/netcoreapp3.1/fr/HandyControl.resources.dll": {
+            "locale": "fr"
+          },
+          "lib/netcoreapp3.1/ko-KR/HandyControl.resources.dll": {
+            "locale": "ko-KR"
+          },
+          "lib/netcoreapp3.1/ru/HandyControl.resources.dll": {
+            "locale": "ru"
+          },
+          "lib/netcoreapp3.1/tr/HandyControl.resources.dll": {
+            "locale": "tr"
+          }
+        }
+      },
+      "Microsoft.NETCore.Platforms/3.1.0": {},
+      "Microsoft.Win32.SystemEvents/4.7.0": {
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "3.1.0"
+        }
+      },
+      "Newtonsoft.Json/12.0.3": {
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "12.0.0.0",
+            "fileVersion": "12.0.3.23909"
+          }
+        }
+      },
+      "Newtonsoft.Json.Schema/3.0.14-beta2": {
+        "dependencies": {
+          "Newtonsoft.Json": "12.0.3"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Newtonsoft.Json.Schema.dll": {
+            "assemblyVersion": "3.0.0.0",
+            "fileVersion": "3.0.14.24725"
+          }
+        }
+      },
+      "System.Drawing.Common/4.7.0": {
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "3.1.0",
+          "Microsoft.Win32.SystemEvents": "4.7.0"
+        }
+      },
+      "System.Linq.Dynamic.Core/1.2.5": {
+        "runtime": {
+          "lib/netcoreapp2.1/System.Linq.Dynamic.Core.dll": {
+            "assemblyVersion": "1.2.5.0",
+            "fileVersion": "1.2.5.0"
+          }
+        }
+      },
+      "System.Text.Encoding.CodePages/4.7.0": {
+        "dependencies": {
+          "Microsoft.NETCore.Platforms": "3.1.0"
+        }
+      },
+      "Microsoft.Office.Interop.Excel/15.0.0.0": {
+        "runtime": {
+          "Microsoft.Office.Interop.Excel.dll": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.4569.1506"
+          }
+        }
+      },
+      "OFFICE/15.0.0.0": {
+        "runtime": {
+          "OFFICE.DLL": {
+            "assemblyVersion": "15.0.0.0",
+            "fileVersion": "15.0.4569.1506"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "UITest/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FreeSpire.XLS/10.10.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-roJA19M8H29O5p9uah1x5UgruqYQsLpRHG5ncAkBM5akkJ4rRlyS8Ga5t4In0kXu+JMUX1hnY/EaHoEt9YphsQ==",
+      "path": "freespire.xls/10.10.0",
+      "hashPath": "freespire.xls.10.10.0.nupkg.sha512"
+    },
+    "HandyControl/3.0.0-rc.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-XdIgIG194ekUapq1pII9j7Vwsckbj1h4OoY2uTjec2AJ93DpqDBOj1OMZioppc/TxG0+4MvsJe+qOFOjfDEfoQ==",
+      "path": "handycontrol/3.0.0-rc.2",
+      "hashPath": "handycontrol.3.0.0-rc.2.nupkg.sha512"
+    },
+    "Microsoft.NETCore.Platforms/3.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-z7aeg8oHln2CuNulfhiLYxCVMPEwBl3rzicjvIX+4sUuCwvXw5oXQEtbiU2c0z4qYL5L3Kmx0mMA/+t/SbY67w==",
+      "path": "microsoft.netcore.platforms/3.1.0",
+      "hashPath": "microsoft.netcore.platforms.3.1.0.nupkg.sha512"
+    },
+    "Microsoft.Win32.SystemEvents/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-mtVirZr++rq+XCDITMUdnETD59XoeMxSpLRIII7JRI6Yj0LEDiO1pPn0ktlnIj12Ix8bfvQqQDMMIF9wC98oCA==",
+      "path": "microsoft.win32.systemevents/4.7.0",
+      "hashPath": "microsoft.win32.systemevents.4.7.0.nupkg.sha512"
+    },
+    "Newtonsoft.Json/12.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg==",
+      "path": "newtonsoft.json/12.0.3",
+      "hashPath": "newtonsoft.json.12.0.3.nupkg.sha512"
+    },
+    "Newtonsoft.Json.Schema/3.0.14-beta2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Ppk7yYlcgUJWNPVDvMKhV7+wrA/3NBbPWWdnc4Tk7YpXqAYwNvSHquD1m87smLWsm94oRHjN/SIul3UX8nZs2A==",
+      "path": "newtonsoft.json.schema/3.0.14-beta2",
+      "hashPath": "newtonsoft.json.schema.3.0.14-beta2.nupkg.sha512"
+    },
+    "System.Drawing.Common/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-v+XbyYHaZjDfn0ENmJEV1VYLgGgCTx1gnfOBcppowbpOAriglYgGCvFCPr2EEZyBvXlpxbEsTwkOlInl107ahA==",
+      "path": "system.drawing.common/4.7.0",
+      "hashPath": "system.drawing.common.4.7.0.nupkg.sha512"
+    },
+    "System.Linq.Dynamic.Core/1.2.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-uTZSZvntd0Qwpb7Iwq/QZRX+osr57XwDfh2fX6S6PGxl+k5C9ehK7rxs9DFJlCVSTgVhk4CSf6fobhN//uxggw==",
+      "path": "system.linq.dynamic.core/1.2.5",
+      "hashPath": "system.linq.dynamic.core.1.2.5.nupkg.sha512"
+    },
+    "System.Text.Encoding.CodePages/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-aeu4FlaUTemuT1qOd1MyU4T516QR4Fy+9yDbwWMPHOHy7U8FD6SgTzdZFO7gHcfAPHtECqInbwklVvUK4RHcNg==",
+      "path": "system.text.encoding.codepages/4.7.0",
+      "hashPath": "system.text.encoding.codepages.4.7.0.nupkg.sha512"
+    },
+    "Microsoft.Office.Interop.Excel/15.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "OFFICE/15.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
