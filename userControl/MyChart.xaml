@@ -1,0 +1,43 @@
+﻿<UserControl x:Class="UITest.userControl.MyChart"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+             xmlns:dynamicVisibility="clr-namespace:UITest.userControl"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             d:DataContext="{d:DesignInstance dynamicVisibility:MyChart}"
+             >
+    <UserControl.Resources>
+        <Style TargetType="Path" BasedOn="{x:Null}"/>
+
+        <BooleanToVisibilityConverter x:Key="bvc"></BooleanToVisibilityConverter>
+    </UserControl.Resources>
+    <Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Width="260" Margin="0,0,540,410">
+            <CheckBox IsChecked="{Binding MariaSeriesVisibility}">
+                Crashes
+            </CheckBox>
+            <CheckBox IsChecked="{Binding CharlesSeriesVisibility}">
+                TotalCrashes
+            </CheckBox>
+            <CheckBox IsChecked="{Binding JohnSeriesVisibility}">
+                TMAD
+            </CheckBox>
+        </StackPanel>
+
+        <lvc:CartesianChart x:Name="myChart" Series="{Binding SeriesCollection}"  LegendLocation="Bottom" Margin="17,20,18,10" >
+
+            <lvc:CartesianChart.AxisY>
+                <lvc:Axis   Foreground="Black"      ></lvc:Axis>
+                <lvc:Axis   Foreground="Black"     Position="RightTop" ></lvc:Axis>
+            </lvc:CartesianChart.AxisY>
+
+            <lvc:CartesianChart.AxisX >
+                <lvc:Axis Title="Month" Labels="{Binding Labels}"  ></lvc:Axis>
+            </lvc:CartesianChart.AxisX>
+        </lvc:CartesianChart>
+    </Grid>
+</UserControl>

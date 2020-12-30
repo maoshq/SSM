@@ -7,138 +7,178 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq.Dynamic;
+using System.Linq.Dynamic.Core;
+using System.Windows;
+using Microsoft.Office.Interop.Excel;
+using DataTable = System.Data.DataTable;
+using System.Net;
+using Newtonsoft.Json.Schema;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using UITest.Model;
+using System.Linq.Expressions;
+using Expression = System.Linq.Expressions.Expression;
 
 namespace UITest.Util
 {
     public class Tool
     {
-
+        public const string NetPath = "\\\\172.30.184.28\\psd\\Common\\Auto Testing\\Auto Tools\\CrashesTool_v1.2\\ExportData\\";
         const string Crashes_Total = "Reliability-Crashes_Total-";
         const string TMAD = "OSAdoption-TMAD-";
         const string Crashes = "Reliability-Crashes-";
-
-        const string path = "C:\\Users\\501805\\Desktop\\auto1\\TelemetryExcel1.1\\ExportData\\";
-        const string suffix = ".csv";
-        static string[] Name = { "rltkapou64.dll", "rltkapo64.dll", "igdkmd64.sys" };
-
-
-        static Dictionary<string, string> Condition = new Dictionary<string, string> {
-
-            {"OSVersion", "10.0.19042.572"},
-            {"DriverVersion", "26.20.100.7872"},
-            {"ReleaseVersion", "2004 | Vb"}
+        const string ReportDate = "Reliability-Crashes_Date-";
+        public static string Path = System.Environment.CurrentDirectory + "\\ExportData\\";
+        public const string suffix = ".csv";
+        public static readonly string[] Name = { "rltkapou64.dll", "rltkapo64.dll", "igdkmd64.sys" };//rltkapou64.dll,rltkapo64.dll,igdkmd64.sys
+        public static readonly string[] OS = { "10.0.19041.508", "10.0.19041.572" };
+        public static readonly string[] Release = { "2004 | Vb" };
+        public static readonly string[] DriverVersion = { "26.20.100.7872" };
+        public static readonly Dictionary<string, string[]> Condition = new Dictionary<string, string[]> {
+            {"OSVersion",OS},
+            {"ReleaseVersion",Release},
+            {"DriverVersion",DriverVersion}
         };
 
-        public static void QueryByJSON()
+        public static readonly string SettingPath = System.Environment.CurrentDirectory + "\\setting.json";
+        public static Dictionary<string, List<string>> driverData;
+        public static void InitSetting()
         {
+            /*            string schemaJson = @"{
+                            'isNet': true
+                        }";*/
+            if (!File.Exists(System.Environment.CurrentDirectory + "\\setting.json"))
+            {
+                Settings settings = new Settings(true,new List<string> { "rltkapou64.dll" },false);
+                string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+
+                File.AppendAllText(System.Environment.CurrentDirectory + "\\setting.json", json, Encoding.UTF8);
+            }
+        }
+        public static void QueryByJSON(string json,string key)
+        {
+            using StreamReader file = File.OpenText(System.Environment.CurrentDirectory + "\\setting.json");
+            using JsonTextReader reader = new JsonTextReader(file);
+
+            string Model = JsonConvert.DeserializeObject<Dictionary<string, string>>(json)[key];
             
         }
 
-
-
-
-        public static void GenerateExcel()
-        {
+        public static void GenerateExcel(Dictionary<string, string[]> condition)
+        {           
             Spire.Xls.Workbook workbook = new Spire.Xls.Workbook();
-            //Initailize worksheet
-            //workbook.CreateEmptySheets(1);
-            if (File.Exists("RecentData.xlsx"))
+            string[] name = condition.GetValueOrDefault("Name");
+            string arg = condition.GetValueOrDefault("Model")[0];
+            if (File.Exists(System.Environment.CurrentDirectory + "\\RecentData.xlsx"))
             {
-                workbook.LoadFromFile("RecentData.xlsx");
+                workbook.LoadFromFile(System.Environment.CurrentDirectory + "\\RecentData.xlsx");
             }
             else
             {
-                InitiExcel(Name);
-                workbook.LoadFromFile("RecentData.xlsx");
+                InitiExcel(name);
+                workbook.LoadFromFile(System.Environment.CurrentDirectory + "\\RecentData.xlsx");
             }
-            //LoadData(workbook, "Crashes",Name ,Condition);
-            LoadData(workbook, "Total_Crashes",Name,Condition);
+            LoadData(workbook, name, arg, condition);
+            workbook.SaveToFile(System.Environment.CurrentDirectory + "\\RecentData.xlsx", ExcelVersion.Version2013);
 
-            workbook.SaveToFile("RecentData.xlsx", ExcelVersion.Version2013);
-
-            GenerateChart();
+            GenerateChart(name);
         }
-        public static void LoadData(Spire.Xls.Workbook workbook, string sheetName,  string[] name,Dictionary<string,string> Condition)
+        public static void LoadData(Spire.Xls.Workbook workbook, string[] name, string arg, Dictionary<string, string[]> condition)
         {
-            Spire.Xls.Worksheet sheet = workbook.Worksheets[sheetName];
+            driverData = new Dictionary<string, List<string>>();
+            Spire.Xls.Worksheet sheet = workbook.Worksheets["Crashes"];
             int lastRow = sheet.Range.LastRow;              //2020/10/12 0:00:00
 
-            string[] date_1 = sheet.Range["B" + lastRow].Value == "Date" ? "2020/7/1".Split("/") : sheet.Range["B" + lastRow].Value.Split(" ")[0].ToString().Split("/");
+            String path = arg == "NET" ? NetPath : Path;
+            //string[] fileName = Directory.GetFiles(System.Environment.CurrentDirectory + "\\ExportData", "*.csv");
+            string[] fileName = Directory.GetFiles(path, "Reliability-Crashes_Total*.csv");
+            string[] fileName1 = Directory.GetFiles(path, "OSAdoption-TMAD*.csv");
+            string firstDate = DateTime.Now.Year.ToString() + "/" + fileName[0].Split("Total-")[1].Split(".")[0].Split("-")[1] + "/" + fileName[0].Split("Total-")[1].Split(".")[0].Split("-")[2]; //获取文件列表中第一项文件日期
+            //string lastDate = DateTime.Now.Year.ToString() + "/" + fileName[^1].Split("Total-")[1].Split(".")[0].Split("-")[0] + "/" + fileName[^1].Split("Total-")[1].Split(".")[0].Split("-")[1];
+
+            string[] date_1 = sheet.Range["B" + lastRow].Value == "Date" ? firstDate.Split("/") : sheet.Range["B" + lastRow].Value.Split(" ")[0].ToString().Split("/");
             DateTime dateTime = new DateTime(Convert.ToInt32(date_1[0]), Convert.ToInt32(date_1[1]), Convert.ToInt32(date_1[2]));
 
-            string curr_Date = DateTime.Now.ToString("MM-dd");
+            string curr_Date = DateTime.Now.ToString("yyyy-MM-dd");
             string curr_Date1 = DateTime.Now.ToString("yyyy/M/dd");
-            for (int i = 1; i < 1000; i++)
+
+            bool flag = readCSV(path + $"\\Reliability-Crashes_Date-{curr_Date}.csv", out DataTable t);
+
+            if (flag == false)
             {
-                string[] fileName = Directory.GetFiles("C:\\Users\\501805\\Desktop\\auto1\\TelemetryExcel1.1\\ExportData", "*.csv");
-
-                int lastRow1 = sheet.Range.LastRow + 1;
-
-                string new_date1 = dateTime.AddDays(i).ToString("MM-dd");
-                string fullpath = path + Crashes_Total + new_date1 + suffix;
-                string fullpath1 = path + TMAD + new_date1 + suffix;
-                DateTime new_date = dateTime.AddDays(i);
-                if (fileName.Contains(fullpath))
+                for (int i = 0; i < 10; i++)
                 {
-                    sheet.Range["B" + lastRow1].DateTimeValue = new_date;
+                    flag = readCSV(path + $"\\Reliability-Crashes_Date-{DateTime.Now.AddDays(-1)}.csv", out t);
+                    if (flag)
+                    {
+                        break;
+                    }
+                }
+            }
+            string reportDate = t.Rows[0].ItemArray[0].ToString().Split(" ")[2];//Report Date : 2020-12-05
+            for (int i = 0; i < fileName.Length; i++)
+            {
+                int lastRow1 = sheet.Range.LastRow + 1;
+                string date = DateTime.Now.Year.ToString() + "/" + fileName[i].Split("Total-")[1].Split(".")[0].Split("-")[1] + "/" + fileName[i].Split("Total-")[1].Split(".")[0].Split("-")[2];
+                DateTime new_date1 = Convert.ToDateTime(date);
+                if (sheet.Range["B" + lastRow].Value == "Date" || DateTime.Compare(sheet.Range["B" + lastRow].DateTimeValue, new_date1) < 0)
+                {
+                    string fullpath = fileName[i];
+                    string fullpath1 = fileName[i].Replace(Crashes_Total, TMAD);
+                    readCSV(fullpath, out DataTable dt);
+
+                    sheet.Range["B" + lastRow1].DateTimeValue = new_date1;
+                    int[] result = GetCrashes2(dt, condition);
+
+                    
+
                     for (int x = 1; x <= name.Length; x++)
                     {
-                        sheet.Range[Convert.ToChar('B' + x).ToString() + lastRow1].NumberValue = AnalyzeCSV(fullpath, "Crashes", name[x - 1],Condition)[0];
+                        sheet.Range[Convert.ToChar('B' + x).ToString() + lastRow1].NumberValue = result[0];
                     }
-                    sheet.Range[Convert.ToChar('B' + (name.Length + 1)).ToString() + lastRow1].NumberValue = AnalyzeCSV(fullpath, "Crashes", name[0], Condition)[1];
+                    sheet.Range[Convert.ToChar('B' + (name.Length + 1)).ToString() + lastRow1].NumberValue = result[1];
 
-                    if (fileName.Contains(fullpath1))
+                    int tmad = 0;
+                    if (fileName1.Contains(fullpath1))
                     {
-                        if (AnalyzeCSV(fullpath1, "TMAD", "2004 | Vb", Condition)[0] != 0)
+                        readCSV(fullpath1, out DataTable dt1);
+                        if (AnalyzeCSV(dt1, "TMAD", "2004 | Vb", condition)[0] != 0)
                         {
-                            sheet.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow1].NumberValue = AnalyzeCSV(fullpath1, "TMAD", "2004 | Vb", Condition)[0];
+                            sheet.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow1].NumberValue = AnalyzeCSV(dt1, "TMAD", "2004 | Vb", condition)[0];
                         }
                         else
                         {
-                            sheet.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow1].NumberValue = AnalyzeCSV(fullpath1, "TMAD", "Insider | Vb", Condition)[0];
+                            tmad = AnalyzeCSV(dt1, "TMAD", "Insider | Vb", condition)[0];
+                            sheet.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow1].NumberValue = tmad;
+
                         }
                     }
                     else
                     {
                         int lastRow2 = lastRow1 - 1;
-                        sheet.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow1].NumberValue = sheet.Range["I" + lastRow2].NumberValue;
+                        tmad = (int)sheet.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow2].NumberValue;
+                        sheet.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow1].NumberValue = tmad;
                     }
-                    sheet.Range[Convert.ToChar('B' + (name.Length + 3)).ToString() + lastRow1].Formula = "=(C" + lastRow1 + "+D" + lastRow1 + "+E" + lastRow1 + ")/I" + lastRow1;
+                    driverData.Add(date, new List<string>() { result[0].ToString(), result[1].ToString(),tmad.ToString() });
+                    sheet.Range[Convert.ToChar('B' + (name.Length + 2)).ToString() + lastRow1].Value = "||";
+                    sheet.Range[Convert.ToChar('B' + (name.Length + 3)).ToString() + lastRow1].Formula = "=SUM(" + Convert.ToChar('B' + 1).ToString() + lastRow1 + ":" + Convert.ToChar('B' + (name.Length)).ToString() + lastRow1 + ")" + "/" + Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow1;
                     sheet.Range[Convert.ToChar('B' + (name.Length + 3)).ToString() + lastRow1].NumberFormat = "0.000%";
 
-                    sheet.Range[Convert.ToChar('B' + (name.Length + 2)).ToString() + lastRow1].Value = "||";
+                    sheet.Range["B6:" + Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow1].HorizontalAlignment = HorizontalAlignType.Center;
 
-                    Console.WriteLine(new_date.ToString("yyyy/M/dd"));
                 }
-
-                if (new_date.ToString("yyyy/M/dd") == curr_Date1 || dateTime.ToString("yyyy/M/dd") == curr_Date1) { break; }
             }
-            Console.WriteLine("now date :" + curr_Date);
         }
         public static void InitiExcel(string[] name)
         {
             Spire.Xls.Workbook workbook = new Spire.Xls.Workbook();
-            Spire.Xls.Worksheet newSheet = workbook.CreateEmptySheet("Crashes");
-            workbook.Worksheets.Remove("sheet1");
-            workbook.Worksheets.Remove("sheet2");
-            workbook.Worksheets.Remove("sheet3");
+            Spire.Xls.Worksheet newSheet1 = workbook.CreateEmptySheet("Crashes");
+            workbook.Worksheets.Remove("Sheet1");
+            workbook.Worksheets.Remove("Sheet2");
+            workbook.Worksheets.Remove("Sheet3");
 
-            newSheet.Range["A1:M1"].ColumnWidth = 15;
-            //newSheet.Range["A:L"].HorizontalAlignment = HorizontalAlignType.Center;
-            newSheet.Range["B6"].Value = "Date";
-            for (int i = 1; i <= name.Length; i++)
-            {
-                newSheet.Range[Convert.ToChar('B' + i).ToString() + "6"].Value = name[i - 1];
-            }
-            newSheet.Range[Convert.ToChar('B' + (name.Length + 1)).ToString() + "6"].Value = "All Crashes";
-            newSheet.Range[Convert.ToChar('B' + (name.Length + 2)).ToString() + "6"].Value = "Percent Impacted";
-            newSheet.Range[Convert.ToChar('B' + (name.Length + 3)).ToString() + "6"].Value = "Crashes/20H1";
-            newSheet.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + "6"].Value = "20H1";
-            newSheet.Range["B6:" + Convert.ToChar('B' + (name.Length + 4)).ToString() + "6"].BorderInside(LineStyleType.Thin, Color.LightBlue);
-            newSheet.Range["B6:" + Convert.ToChar('B' + (name.Length + 4)).ToString() + "6"].BorderAround(LineStyleType.Medium, Color.LightBlue);
-
-            Spire.Xls.Worksheet newSheet1 = workbook.CreateEmptySheet("Total_Crashes");
-            newSheet1.Range["A1:M1"].ColumnWidth = 15;
+            newSheet1.Range["A1:M1"].ColumnWidth = 17;
             newSheet1.Range.HorizontalAlignment = HorizontalAlignType.Center;
             newSheet1.Range["B6"].Value = "Date";
 
@@ -148,52 +188,152 @@ namespace UITest.Util
             }
             newSheet1.Range[Convert.ToChar('B' + (name.Length + 1)).ToString() + "6"].Value = "All Crashes";
             newSheet1.Range[Convert.ToChar('B' + (name.Length + 2)).ToString() + "6"].Value = "Percent Impacted";
-            newSheet1.Range[Convert.ToChar('B' + (name.Length + 3)).ToString() + "6"].Value = "Crashes/20H1";
-            newSheet1.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + "6"].Value = "20H1";
+            newSheet1.Range[Convert.ToChar('B' + (name.Length + 3)).ToString() + "6"].Value = "Crashes/OS";
+            newSheet1.Range[Convert.ToChar('B' + (name.Length + 4)).ToString() + "6"].Value = "OS";
             newSheet1.Range["B6:" + Convert.ToChar('B' + (name.Length + 4)).ToString() + "6"].BorderInside(LineStyleType.Thin, Color.LightBlue);
             newSheet1.Range["B6:" + Convert.ToChar('B' + (name.Length + 4)).ToString() + "6"].BorderAround(LineStyleType.Medium, Color.LightBlue);
 
-            workbook.SaveToFile("RecentData.xlsx", ExcelVersion.Version2013);
+            workbook.SaveToFile(System.Environment.CurrentDirectory + "\\RecentData.xlsx", ExcelVersion.Version2013);
         }
 
-        public static void GenerateChart()
+        public static void GenerateChart(string[] name)
         {
-            if (File.Exists("Trend Analysis.xlsx")) File.Delete("Trend Analysis.xlsx");
-            Spire.Xls.Workbook workbook = new Spire.Xls.Workbook();
-            Spire.Xls.Worksheet newSheet = workbook.CreateEmptySheet("Crashes");
-            Spire.Xls.Worksheet newSheet1 = workbook.CreateEmptySheet("Total_Crashes");
-            workbook.Worksheets.Remove("sheet1");
-            workbook.Worksheets.Remove("sheet2");
-            workbook.Worksheets.Remove("sheet3");
+            try
+            {
+                if (File.Exists(System.Environment.CurrentDirectory + "\\Trend Analysis.xlsx")) File.Delete(System.Environment.CurrentDirectory + "\\Trend Analysis.xlsx");
+                Spire.Xls.Workbook workbook = new Spire.Xls.Workbook();
+                Spire.Xls.Worksheet newSheet = workbook.CreateEmptySheet("Crashes");
+                workbook.Worksheets.Remove("Sheet1");
+                workbook.Worksheets.Remove("Sheet2");
+                workbook.Worksheets.Remove("Sheet3");
 
-            newSheet.Range["A1:M1"].ColumnWidth = 15;
-            newSheet1.Range["A1:M1"].ColumnWidth = 15;
-            //newSheet.Range.HorizontalAlignment = HorizontalAlignType.Center;
+                newSheet.Range["A1:M1"].ColumnWidth = 15;
+                //newSheet.Range.HorizontalAlignment = HorizontalAlignType.Center;
 
+                Spire.Xls.Workbook workbook1 = new Spire.Xls.Workbook();
+                workbook1.LoadFromFile(System.Environment.CurrentDirectory + "\\RecentData.xlsx");
+                //int lastRow = workbook1.Worksheets["Crashes"].LastRow;
+                int lastRow = workbook1.Worksheets["Crashes"].LastRow;
+                //workbook1.Worksheets["Crashes"].Range["B6:I6"].Copy(workbook.Worksheets["Crashes"].Range["A6:H6"]);
+                //workbook1.Worksheets["Crashes"].Range["B" + (lastRow - 29) + ":I" + lastRow].Copy(workbook.Worksheets["Crashes"].Range["A7:H36"]);
 
-            Spire.Xls.Workbook workbook1 = new Spire.Xls.Workbook();
-            workbook1.LoadFromFile("RecentData.xlsx");
-            int lastRow = workbook1.Worksheets["Crashes"].LastRow;
-            int lastRow1 = workbook1.Worksheets["Total_Crashes"].LastRow;
-            workbook1.Worksheets["Crashes"].Range["B6:I6"].Copy(workbook.Worksheets["Crashes"].Range["A6:H6"]);
-            workbook1.Worksheets["Crashes"].Range["B" + (lastRow - 29) + ":I" + lastRow].Copy(workbook.Worksheets["Crashes"].Range["A7:H36"]);
-
-            workbook1.Worksheets["Total_Crashes"].Range["B6:I6"].Copy(workbook.Worksheets["Total_Crashes"].Range["A6:H6"]);
-            workbook1.Worksheets["Total_Crashes"].Range["B" + (lastRow1 - 29) + ":I" + lastRow1].Copy(workbook.Worksheets["Total_Crashes"].Range["A7:H36"]);
-            workbook.SaveToFile("Trend Analysis.xlsx", ExcelVersion.Version2013);
-
-
+                workbook1.Worksheets["Crashes"].Range["B6:" + Convert.ToChar('B' + (name.Length + 4)).ToString() + "6"].Copy(workbook.Worksheets["Crashes"].Range["A41:" + Convert.ToChar('A' + (name.Length + 4)).ToString() + "41"]);
+                if (lastRow < 37)
+                {
+                    workbook1.Worksheets["Crashes"].Range["B7" + ":" + Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow].Copy(workbook.Worksheets["Crashes"].Range["A42:" + Convert.ToChar('A' + (name.Length + 4)).ToString() + (lastRow + 25)]);
+                }
+                else
+                {
+                    workbook1.Worksheets["Crashes"].Range["B" + (lastRow - 29) + ":" + Convert.ToChar('B' + (name.Length + 4)).ToString() + lastRow].Copy(workbook.Worksheets["Crashes"].Range["A42:" + Convert.ToChar('A' + (name.Length + 4)).ToString() + "71"]);
+                }
+                workbook.Worksheets["Crashes"].Range["A41:" + Convert.ToChar('A' + (name.Length + 4)).ToString() + (lastRow + 25)].HorizontalAlignment = HorizontalAlignType.Center;
+                workbook.SaveToFile(System.Environment.CurrentDirectory + "\\Trend Analysis.xlsx", ExcelVersion.Version2013);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         public static bool IsInt(string value)
         {
             return Regex.IsMatch(value, @"^[+-]?\d*$");
         }
-        public static int[] AnalyzeCSV(string path, string type, string Name,Dictionary<string,string> condition)
+
+        public static void Query(string Path)
         {
-            if (type == "Crashes")
+            bool flag = readCSV(Path, out DataTable dt);
+        }
+        public static int[] AnalyzeCSV(DataTable dt, string type, string Name, Dictionary<string, string[]> condition)
+        {
+            try
             {
-                readCSV(path, out DataTable dt);
+                if (type == "Crashes")
+                {
+                    foreach (DataColumn column in dt.Columns)
+                    {
+                        if (column.ColumnName.Contains("["))
+                        {
+                            string ColumnName = column.ColumnName.Split("[")[1].Split("]")[0];
+                            column.ColumnName = ColumnName.Replace(" ", "");
+                        }
+                    }
+
+                    int[] crashes = { 0, 0 };
+                    if (condition.ContainsKey("DriverVersion") && !condition.ContainsKey("ReleaseVersion") && !condition.ContainsKey("OSVersion"))
+                    {
+                        crashes[1] = dt.AsEnumerable().Select(d => Convert.ToInt32(d.Field<string>("Crashes"))).Sum();
+                    }
+                    else
+                    {
+                        crashes[1] = GetCrashes1(dt, Name, condition, "total");
+                    }
+                    //dt.AsEnumerable().Where(d=>d["DriverName"].ToString()== condition)
+                    crashes[0] = GetCrashes1(dt, Name, condition);
+                    return crashes;
+                }
+                else if (type == "TMAD")
+                {
+                    dt.Columns[0].ColumnName = "OSVersion";
+                    int[] Tmad = { 0 };
+                    foreach (var values in condition)
+                    {
+                        if (values.Key.Equals("ReleaseVersion"))
+                        {
+                            foreach (var item in values.Value)
+                            {
+                                DataRow[] dataRows = dt.Select("OSVersion = '" + item + "'");
+                                Tmad[0] += Convert.ToInt32(dataRows[0].ItemArray[1]);
+                            }
+                            break;
+                        }
+                        else if (condition.ContainsKey("ReleaseVersion") && condition.ContainsKey("OSVersion"))
+                        {
+                            Tmad[0] += dt.AsEnumerable().Select(d => Convert.ToInt32(d.Field<string>("[TMAD]"))).Sum();
+                            break;
+                        }
+                    }
+                    if (condition.Count == 0)
+                    {
+                        Tmad[0] += dt.AsEnumerable().Select(d => Convert.ToInt32(d.Field<string>("[TMAD]"))).Sum();
+                    }
+                    return Tmad;
+                }
+                return new int[2] { 0, 0 };
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+        }
+
+        public static DataTable GetDT()
+        {
+            String path1;
+            if (Directory.Exists(NetPath))
+            {
+                path1 = NetPath;
+            }
+            else
+            {
+                path1 = Path;
+            }
+            try
+            {
+                string[] fileName = Directory.GetFiles(path1, "*.csv");
+                readCSV(fileName[^1], out DataTable dt);
+                return dt;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public static List<string> FuzzyQuery(DataTable dt, string name, string condition)
+        {
+            try
+            {
                 foreach (DataColumn column in dt.Columns)
                 {
                     if (column.ColumnName.Contains("["))
@@ -202,80 +342,296 @@ namespace UITest.Util
                         column.ColumnName = ColumnName.Replace(" ", "");
                     }
                 }
-                int[] crashes = { 0, 0 };
-                //total = dt.AsEnumerable()
-                //                   .Where(r => r.Field<string>("Crashes") != null)
-                //                   .Sum(x => Convert.ToInt32(x.Field<string>("Crashes")));
-                //object total = dt.Compute("SUM(Crashes)", "");
-                double total = 0;
-                foreach (DataRow row in dt.Rows)
-                {
-                    if (IsInt(row["Crashes"].ToString()))
-                    {
-                        total += double.Parse(row["Crashes"].ToString());
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                crashes[1] = Convert.ToInt32(total);
-                //dt.AsEnumerable().Where(r => r.Field<string>("OSVersion") != null).Select("DriverName= '" + condition + "' AND ISNULL(OSVersion = '10.0.19042.572',0)");
-                //   AND ISNULL(DriverVersion = '26.20.100.7872',0)',0)AND ISNULL(OSVersion = '26.20.100.7872',0)AND ISNULL(DriverVersion = '26.20.100.7872',0)
-                //(DataRow i in dt.Select("DriverName= '" + condition + "' AND ISNULL(DriverVersion = '11.0.6000.620',0) AND ISNULL(OSVersion = '10.0.19042.572',0) "))
-
-                //dt.AsEnumerable().Where(d=>d["DriverName"].ToString()== condition)
-                foreach (DataRow i in editExp(dt,Name,condition)) //"DriverName = 'rltkapou64.dll'"
-                {
-                    object crash = i["Crashes"];
-                    crashes[0] += Convert.ToInt32(crash);
-                }
-                //dt.AsEnumerable().Select(d => d.Field<string>("OSVersion")).Distinct().ToList<string>()
-                return crashes;
+                List<string> items = dt.AsEnumerable().Where(d => d["DriverName"].ToString().Contains(name)).Select(d => d.Field<string>(condition)).Distinct().ToList<string>();
+                items.Sort();
+                return items;
             }
-            else if (type == "TMAD")
+            catch (Exception)
             {
-                bool flag = readCSV(path, out DataTable dt);
-
-                dt.Columns[0].ColumnName = "OSVersion";
-                int[] Tmad = { 0 };
-                foreach (DataRow i in dt.Select("OSVersion= '" + condition + "'"))  //"OSVersion= '2004 | Vb'"
-                {
-                    object tmad = i.ItemArray[1];
-                    Tmad[0] += Convert.ToInt32(tmad);
-                }
-                return Tmad;
+                throw;
             }
-            return new int[2] { 0, 0 };
         }
-
-        public static EnumerableRowCollection<DataRow> editExp(DataTable d,string name,Dictionary<string,string> condition)
+        public static List<string> GetItems(DataTable dt,string name, string condition)
         {
-            
-            EnumerableRowCollection<DataRow> enumerable = d.AsEnumerable().Where(d => d["DriverName"].ToString() == name).Where(d => d["DriverVersion"].ToString() == "11.0.6000.620").Where(d => d["OSVersion"].ToString() == "10.0.19042.572");
-
-            return enumerable;
-        }
-
-        static public bool readCSV(string filePath, out DataTable dt)//从csv读取数据返回table
-        {
-            dt = new DataTable();
             try
             {
-                System.Text.Encoding encoding = Encoding.Default;//GetType(filePath); //
-                                                                 // DataTable dt = new DataTable();
-                System.IO.FileStream fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open,
-                    System.IO.FileAccess.Read);
-                System.IO.StreamReader sr = new System.IO.StreamReader(fs, encoding);
-                //记录每次读取的一行记录
+                foreach (DataColumn column in dt.Columns)
+                {
+                    if (column.ColumnName.Contains("["))
+                    {
+                        string ColumnName = column.ColumnName.Split("[")[1].Split("]")[0];
+                        column.ColumnName = ColumnName.Replace(" ", "");
+                    }
+                }
+                List<string> items = dt.AsEnumerable().Where(d => d["DriverName"].ToString() == name).Select(d => d.Field<string>(condition)).Distinct().ToList<string>();
+                items.Sort();
+                return items;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public static int GetCrashes(DataTable d, string name, Dictionary<string, string[]> condition, string flag = "crashes")
+        {
+
+            return 0;
+        }
+        public static int[] GetCrashes2(DataTable dt, Dictionary<string, string[]> condition)
+        {
+            int[] result = new int[2];
+
+            foreach (DataColumn column in dt.Columns)
+            {
+                if (column.ColumnName.Contains("["))
+                {
+                    string ColumnName = column.ColumnName.Split("[")[1].Split("]")[0];
+                    column.ColumnName = ColumnName.Replace(" ", "");
+                }
+            }
+            var paramExp = Expression.Variable(typeof(DataRow), "d");
+            BinaryExpression expression = null;
+            BinaryExpression DNor = null,RVor = null, DVor = null, OVor = null;
+            var driverName = Expression.Constant("DriverName", typeof(string));
+            var field = typeof(DataRowExtensions).GetMethod("Field", new Type[] { typeof(DataRow), typeof(string) }).MakeGenericMethod(typeof(string));
+            MethodCallExpression DNexp = Expression.Call(field, paramExp, driverName);
+            string[] DN = condition.GetValueOrDefault("Name");
+            ConstantExpression[] DriverName = new ConstantExpression[DN.Length];
+            for (int i = 0; i < DN.Length; i++)
+            {
+                DriverName[i] = Expression.Constant(DN[i]);
+                if (i == 0) DNor = Expression.Equal(DNexp, DriverName[i]);
+                if (i > 0) DNor = Expression.Or(DNor, Expression.Equal(DNexp, DriverName[i]));
+
+            }
+
+            if (condition.ContainsKey("ReleaseVersion"))
+            {
+                var releaseVersion = Expression.Constant("ReleaseVersion", typeof(string));
+                MethodCallExpression RVexp = Expression.Call(field, paramExp, releaseVersion);
+                string[] RV = condition.GetValueOrDefault("ReleaseVersion");
+                ConstantExpression[] ReleaseVersion = new ConstantExpression[RV.Length];
+                for (int i = 0; i < RV.Length; i++)
+                {
+                    ReleaseVersion[i] = Expression.Constant(RV[i]);
+                    if (i == 0) RVor = Expression.Equal(RVexp, ReleaseVersion[i]);
+                    if (i > 0) RVor = Expression.Or(RVor, Expression.Equal(RVexp, ReleaseVersion[i]));
+                }
+                expression = RVor;
+            }
+
+            if (condition.ContainsKey("OSVersion"))
+            {
+                var osVersion = Expression.Constant("OSVersion", typeof(string));
+                MethodCallExpression OVexp = Expression.Call(field, paramExp, osVersion);
+                string[] OV = condition.GetValueOrDefault("OSVersion");
+                ConstantExpression[] OSVersion = new ConstantExpression[OV.Length];
+
+                for (int i = 0; i < OV.Length; i++)
+                {
+                    OSVersion[i] = Expression.Constant(OV[i]);
+                    if (i == 0) OVor = Expression.Equal(OVexp, OSVersion[i]);
+                    if (i > 0) OVor = Expression.Or(OVor, Expression.Equal(OVexp, OSVersion[i]));
+                }
+                expression = Expression.And(expression, OVor);
+            }
+
+            if (condition.ContainsKey("DriverVersion"))
+            {
+                var driverVersion = Expression.Constant("DriverVersion", typeof(string));
+                MethodCallExpression DVexp = Expression.Call(field, paramExp, driverVersion);
+                string[] DV = condition.GetValueOrDefault("DriverVersion");
+                ConstantExpression[] DriverVersion = new ConstantExpression[DV.Length];
+                for (int i = 0; i < DV.Length; i++)
+                {
+                    DriverVersion[i] = Expression.Constant(DV[i]);
+                    if (i == 0) DVor = Expression.Equal(DVexp, DriverVersion[i]);
+                    if (i > 0) DVor = Expression.Or(DVor, Expression.Equal(DVexp, DriverVersion[i]));
+                }
+                expression = Expression.And(expression, DVor);
+            }
+
+            Expression<Func<DataRow, bool>> expression1 = Expression.Lambda<Func<DataRow, bool>>(expression, paramExp);
+            BinaryExpression binaryExpression = Expression.And(DNor, expression);
+            Expression<Func<DataRow, bool>> To_exp = Expression.Lambda<Func<DataRow, bool>>(binaryExpression, paramExp);
+
+            result[0] = dt.AsEnumerable().AsQueryable().Where(To_exp).Select(d => Convert.ToInt32(d.Field<string>("Crashes"))).Sum();
+            result[1] = dt.AsEnumerable().AsQueryable().Where(expression1).Select(d => Convert.ToInt32(d.Field<string>("Crashes"))).Sum();
+
+            return result;
+        }
+        public static int GetCrashes1(DataTable d, string name, Dictionary<string, string[]> condition, string flag = "crashes")
+        {
+            int crashes = 0;
+            StringBuilder exp = new StringBuilder();
+            string exp1 = "";
+            //exp.AppendFormat(" DriverName ='{0}'", name);
+            foreach (var values in condition)
+            {
+                if (values.Key.Equals("ReleaseVersion"))
+                {
+                    int i = 0;
+                    exp = exp.ToString() == "" ? exp.Append("(") : exp.Append(" and (");
+                    foreach (var item in values.Value)
+                    {
+                        if (i > 0)
+                        {
+                            exp.Append(" or ");
+                        }
+                        i++;
+                        exp.AppendFormat(" ReleaseVersion ='{0}'", item);
+                    }
+                    exp.Append(" ) ");
+                }
+                if (values.Key.Equals("OSVersion"))
+                {
+                    int x = 0;
+                    exp = exp.ToString() == "" ? exp.Append("(") : exp.Append(" and (");
+                    foreach (var item in values.Value)
+                    {
+                        if (x > 0)
+                        {
+                            exp.Append(" or ");
+                        }
+                        x++;
+                        exp.AppendFormat(" OSVersion ='{0}'", item);
+                    }
+                    exp.Append(" ) ");
+                }
+                exp1 = exp.ToString();
+                if (values.Key.Equals("DriverVersion"))
+                {
+                    int y = 0;
+                    exp = exp.ToString() == "" ? exp.Append("(") : exp.Append(" and (");
+                    foreach (var item in values.Value)
+                    {
+                        if (y > 0)
+                        {
+                            exp.Append(" or ");
+                        }
+                        y++;
+                        exp.AppendFormat(" DriverVersion ='{0}'", item);
+                    }
+                    exp.Append(" ) ");
+                }
+            }
+            //string ex = " DriverName ='rltkapou64.dll' and ( ReleaseVersion = '2004 | Vb' or ReleaseVersion = '1909 | 19H2' ) ";
+            try
+            {
+                DataRow[] dataRows = d.Select(exp.ToString());
+                if (flag == "total")
+                {
+                    //DataRow[] dataRows1 = d.Select(exp1.ToString())
+                    crashes = d.Select(exp1.ToString()).Select(d => Convert.ToInt32(d.Field<string>("Crashes"))).Sum();
+                }
+                else
+                {
+                    crashes = dataRows.Where(d => d["DriverName"].ToString() == name).Select(d => Convert.ToInt32(d.Field<string>("Crashes"))).Sum();
+                }
+                return crashes;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public static void GenerateChart1(string[] name)
+        {
+            //string[] name = new string[] { "rltkapou64.dll" };
+            Spire.Xls.Workbook workbook = new Spire.Xls.Workbook();
+            workbook.LoadFromFile(System.Environment.CurrentDirectory + "\\Trend Analysis.xlsx");
+            Spire.Xls.Worksheet sheet = workbook.Worksheets["Crashes"];
+            int lastRow = sheet.Range.LastRow;
+            int lastColumn = sheet.Range.LastColumn;
+            int length = name.Length;
+            Microsoft.Office.Interop.Excel.Application excel = new Microsoft.Office.Interop.Excel.Application
+            {
+                Visible = true
+            };
+            Microsoft.Office.Interop.Excel.Workbook workbook1 = excel.Workbooks.Open(System.Environment.CurrentDirectory + "\\Trend Analysis.xlsx");
+            Microsoft.Office.Interop.Excel.Chart chart = ((ChartObjects)((Microsoft.Office.Interop.Excel.Worksheet)excel.Workbooks["Trend Analysis.xlsx"].Worksheets["Crashes"]).ChartObjects()).Add(0, 0, 910, 500).Chart;
+
+            //chart.Name = "Crashes";
+            chart.HasTitle = true;
+            chart.ChartTitle.Text = "DRIVER Crashes VS OS Upgrade";
+
+            chart.ChartTitle.Select();
+            //((ChartTitle)excel.Selection).Format.TextFrame2.
+            chart.ChartWizard(((Microsoft.Office.Interop.Excel.Worksheet)excel.Worksheets["Crashes"]).Range["'Crashes'!A41:" + Convert.ToChar('A' + (name.Length + 1)).ToString() + lastRow + ",'Crashes'!" + Convert.ToChar('A' + (name.Length + 4)).ToString() + 41 + ":" + Convert.ToChar('A' + (name.Length + 4)).ToString() + lastRow], "63");
+
+            chart.ChartStyle = 227;
+            chart.ChartType = XlChartType.xlLineStacked;
+            ((Series)chart.FullSeriesCollection("OS")).AxisGroup = XlAxisGroup.xlSecondary;
+            ((Series)chart.FullSeriesCollection("All Crashes")).AxisGroup = XlAxisGroup.xlSecondary;
+            ((Axis)chart.Axes("1")).MajorUnit = 4;
+
+            ((Series)chart.FullSeriesCollection("OS")).Format.Line.ForeColor.RGB = (int)XlRgbColor.rgbBlack;
+            ((Series)chart.FullSeriesCollection("All Crashes")).Format.Line.ForeColor.RGB = (int)XlRgbColor.rgbRed;
+            ((Series)chart.FullSeriesCollection(name[0])).Format.Line.ForeColor.RGB = (int)XlRgbColor.rgbOrange;
+            int[] ID1 = new int[(lastRow - 40) / 5];
+            int[] ID2 = new int[(lastRow - 40) / 5];
+            int[] ID3 = new int[(lastRow - 40) / 5];
+            int[] ID4 = new int[(lastRow - 40) / 5];
+            for (int i = 0; i < (lastRow - 40) / 5; i++)
+            {
+                ID1[i] = (i * 4) + 1;
+                ID2[i] = (i * 4) + 2;
+                ID3[i] = (i * 4) + 3;
+                ID4[i] = (i * 4) + 4;
+            }
+            foreach (var item in ID1)
+            {
+                ((Microsoft.Office.Interop.Excel.Point)((Series)chart.FullSeriesCollection("OS")).Points(item)).HasDataLabel = true;
+            }
+            foreach (var item in ID2)
+            {
+                ((Microsoft.Office.Interop.Excel.Point)((Series)chart.FullSeriesCollection("All Crashes")).Points(item)).HasDataLabel = true;
+            }
+            foreach (var item in ID3)
+            {
+                ((Microsoft.Office.Interop.Excel.Point)((Series)chart.FullSeriesCollection(name[0])).Points(item)).HasDataLabel = true;
+            }
+
+            chart.ChartArea.Select();
+            chart.SetElement(Microsoft.Office.Core.MsoChartElementType.msoElementDataLabelCenter);
+            ((Series)chart.FullSeriesCollection("OS")).Select();
+            chart.SetElement(Microsoft.Office.Core.MsoChartElementType.msoElementDataLabelTop);
+
+            workbook1.Save();
+        }
+
+
+
+        public static bool readCSV(string filePath, out DataTable dt)//从csv读取数据返回table
+        {
+            dt = new DataTable();
+            FileStream fs = null;
+            Stream rs = null;
+            StreamReader sr = null;
+            System.Text.Encoding encoding = Encoding.Default;
+            try
+            {
+                if (!filePath.Contains(Environment.CurrentDirectory + "\\ExportData"))
+                {
+                    WebRequest req = WebRequest.Create(filePath);
+                    rs = req.GetResponse().GetResponseStream();
+                    sr = new System.IO.StreamReader(rs, encoding);
+                }
+                else
+                {
+                    fs = new System.IO.FileStream(filePath, System.IO.FileMode.Open,
+                System.IO.FileAccess.Read);
+                    sr = new System.IO.StreamReader(fs, encoding);
+
+                }
                 string strLine = "";
-                //记录每行记录中的各字段内容
                 string[] aryLine = null;
                 string[] tableHead = null;
                 int columnCount = 0;
-                //标示是否是读取的第一行
                 bool IsFirst = true;
-                //逐行读取CSV中的数据
+
                 while ((strLine = sr.ReadLine()) != null)
                 {
                     if (IsFirst == true)
@@ -300,17 +656,24 @@ namespace UITest.Util
                         dt.Rows.Add(dr);
                     }
                 }
-                if (aryLine != null && aryLine.Length > 0)
-                {
-                    dt.DefaultView.Sort = tableHead[0] + " " + "asc";
-                }
-                sr.Close();
-                fs.Close();
+                
                 return true;
             }
             catch (Exception)
             {
                 return false;
+            }
+            finally
+            {
+                if (rs != null)
+                {
+                    rs.Dispose();
+                }
+                if (fs != null)
+                {
+                    fs.Dispose();
+                }
+                sr.Dispose();
             }
         }
     }
