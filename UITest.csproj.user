@@ -9,14 +9,14 @@
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="MainContent.xaml.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Update="UserControl1.xaml.cs">
+    <Compile Update="userControl\MyChart.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Dic1.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="MainContent.xaml">
       <SubType>Designer</SubType>
     </Page>
@@ -24,6 +24,9 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="UserControl1.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="userControl\MyChart.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

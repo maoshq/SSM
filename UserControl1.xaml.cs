@@ -28,7 +28,7 @@ namespace UITest
             InitializeComponent();
 
             this.SettingBinding();
-            List<Driver> lists = new List<Driver> { new Driver("reaktek32.dll"), new Driver("dtsdek.dll") };
+            List<string> lists = new List<string> { "reaktek32.dll","dtsdek.dll","list.dll", "example2.sys", "ifhlt.dll" };
             //new Model.Driver("reaktek32.dll");
             listBox.ItemsSource = lists;
             
@@ -76,28 +76,27 @@ namespace UITest
             {
                 return;
             }
-            foreach (Driver driver in listBox.SelectedItems)
-            {
-                ListBoxItem listBoxItem = listBox.ItemContainerGenerator.ContainerFromItem(driver) as ListBoxItem;
-                listBoxItem?.Show(driver.DriverName.ToString().Contains(""));
-
-            }
-            foreach (Driver driver in listBox.Items)
+            foreach (var driver in listBox.Items)
             {
                 ListBoxItem listBoxItem = listBox.ItemContainerGenerator.ContainerFromItem(driver) as ListBoxItem;
                 
-                listBoxItem?.Show(driver.DriverName.ToString().Contains(e.Info.ToLower()));
+                listBoxItem?.Show(driver.ToString().Contains(e.Info.ToLower()));
+                if (listBox.SelectedItems.Contains(driver))
+                {
+                    listBoxItem?.Show(true);
+                }
             }
             
 
         }
 
-        private void listBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void checkListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (listBox.SelectedItems.Count == 1) 
+            if (listBox.SelectedItems.Count == 1)
             {
-                splitButton.Content = ((Driver)listBox.SelectedItem).DriverName;
-            }else if(listBox.SelectedItems.Count > 1)
+                splitButton.Content = listBox.SelectedItem;
+            }
+            else if (listBox.SelectedItems.Count > 1)
             {
                 splitButton.Content = "多选";
             }
@@ -105,18 +104,22 @@ namespace UITest
             {
                 splitButton.Content = "所有";
             }
-            Driver selectedItem = (Driver)listBox.SelectedItem;
-            if (selectedItem!=null)
-            {
-                selectedItem.IsSelected = !selectedItem.IsSelected;
-            }
-            
+            chbxAll.IsChecked = listBox.SelectedItems.Count == 0 ? false :
+                    listBox.SelectedItems.Count == listBox.Items.Count ? (bool?)true : null;
+        }
+        private void chbxAll_Checked(object sender, RoutedEventArgs e)
+        {
+            listBox.SelectAll();
         }
 
+        private void chbxAll_Unchecked(object sender, RoutedEventArgs e)
+        {
+            listBox.UnselectAll();
+        }
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = sender as CheckBox;
-            
         }
+
     }
 }

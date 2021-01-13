@@ -36,15 +36,7 @@ namespace UITest
 
             Main.Content = new MainContent();
         }
-        public static DataTable getDT()
-        {
-            if (dt == null || dt.Rows.Count == 0)
-            {
-                dt = Tool.GetDT();
-            }
-            return dt;
-            
-        }
+
         private void StackPanel_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -83,6 +75,7 @@ namespace UITest
                 {
                     this.Dispatcher.Invoke(DispatcherPriority.Normal, (ThreadStart)delegate ()
                     {
+                        
                         Main.Content = new UserControl1();
                     });
                 }
@@ -132,6 +125,7 @@ namespace UITest
 
         private void Button2_Copy_Click(object sender, RoutedEventArgs e)
         {
+            
             Main.Content = new userControl.MyChart();
         }
     }

@@ -230,12 +230,13 @@ namespace UITest
                 {
                     name = TextBox1.Text;
                 });
-                List<string> items = Util.Tool.FuzzyQuery(MainWindow.getDT(), name, "DriverName").GetRange(0, 10);
+                //List<string> items = Util.Tool.FuzzyQuery(MainWindow.getDT(), name, "DriverName").GetRange(0, 10);
 
-                this.Dispatcher.Invoke(DispatcherPriority.Normal, (ThreadStart)delegate ()
+/*                this.Dispatcher.Invoke(DispatcherPriority.Normal, (ThreadStart)delegate ()
                 {
                     this.DriverName.ItemsSource = items;
-                });
+                });*/
+
             });
             task.Start();
         }
@@ -249,13 +250,13 @@ namespace UITest
                     Task task = new Task(() =>
                     {
                         
-                        List<string> items = Util.Tool.GetItems(MainWindow.getDT(), "rltkapou64.dll", "OSVersion");
+                        //List<string> items = Util.Tool.GetItems(MainWindow.getDT(), "rltkapou64.dll", "OSVersion");
                         this.Dispatcher.Invoke(DispatcherPriority.Normal, (ThreadStart)delegate ()
                         {
-                            foreach (var item in items)
+/*                            foreach (var item in items)
                             {
                                 combox2.Items.Add(item);
-                            }
+                            }*/
                         });
                         OSflag = true;
                     });
@@ -279,7 +280,7 @@ namespace UITest
                 {
                     Task task = new Task(() =>
                     {
-                        lists = Util.Tool.GetItems(MainWindow.getDT(), text, "DriverVersion");
+                        //lists = Util.Tool.GetItems(MainWindow.getDT(), text, "DriverVersion");
                         this.Dispatcher.Invoke(DispatcherPriority.Normal, (ThreadStart)delegate ()
                         {
                             combox3.Items.Clear();
